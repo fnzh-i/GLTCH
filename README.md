@@ -1,7 +1,7 @@
 # GLTCH (Creative Campaign & Multi-Step E-Commerce)
 GLTCH is a high-octane digital experience where the boundaries between design and code dissolve. This platform serves as the digital gateway for a 3-day tech-and-art conference, featuring a dynamic event scheduler and a foolproof, multi-step ticket configurator designed to eliminate friction and maximize conversion.
 
-🔗 Repository: https://github.com/fnzh-i/GLTCH-Festival-Campaign
+🔗 Repository: https://github.com/fnzh-i/GLTCH
 
 ## 🚀 Tech Stack
 **Frontend:** React / Next.js (App Router)
