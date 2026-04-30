@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { motion } from "motion/react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { ChevronLeft, ChevronRight, X, Clock, MapPin, User } from "lucide-react";
 import talksData from "../../data/talks.json";
 
 type Talk = {
@@ -20,14 +20,13 @@ const talks: Talk[] = talksData as Talk[];
 
 function Schedule() {
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 3)); // April 2026
-  const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   // Get events for a specific day
   const getEventsForDay = (day: number) => {
     return talks.filter((t) => t.day === day);
   };
 
-  // Get calendar days
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
@@ -40,14 +39,9 @@ function Schedule() {
   const firstDay = getFirstDayOfMonth(currentMonth);
   const monthName = currentMonth.toLocaleString("default", { month: "long", year: "numeric" });
 
-  // Create calendar grid
   const calendarDays: (number | null)[] = [];
-  for (let i = 0; i < firstDay; i++) {
-    calendarDays.push(null);
-  }
-  for (let i = 1; i <= daysInMonth; i++) {
-    calendarDays.push(i);
-  }
+  for (let i = 0; i < firstDay; i++) calendarDays.push(null);
+  for (let i = 1; i <= daysInMonth; i++) calendarDays.push(i);
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const weeks: (number | null)[][] = [];
@@ -55,136 +49,142 @@ function Schedule() {
     weeks.push(calendarDays.slice(i, i + 7));
   }
 
-  const handlePrevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
-  };
+  const handlePrevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  const handleNextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
 
-  const handleNextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
-  };
+  // Events for the modal
+  const selectedEvents = selectedDay ? getEventsForDay(selectedDay) : [];
 
   return (
-    <div className="w-full bg-black text-white min-h-screen p-8">
+    <div className="w-full bg-black text-white min-h-screen p-8 relative">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <h2 className="text-4xl font-bold mb-2">Schedule</h2>
-          <p className="text-gray-400">Interactive event calendar</p>
+          <p className="text-gray-400">Click a day to view full schedule</p>
         </div>
 
         {/* Month Navigation */}
         <div className="flex items-center justify-between mb-8">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handlePrevMonth}
-            className="p-2 hover:bg-gray-900 rounded-lg transition-colors"
-          >
-            <ChevronLeft size={24} />
-          </motion.button>
+          <button onClick={handlePrevMonth} className="p-2 hover:bg-gray-900 rounded-lg"><ChevronLeft /></button>
           <h3 className="text-2xl font-semibold">{monthName}</h3>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleNextMonth}
-            className="p-2 hover:bg-gray-900 rounded-lg transition-colors"
-          >
-            <ChevronRight size={24} />
-          </motion.button>
+          <button onClick={handleNextMonth} className="p-2 hover:bg-gray-900 rounded-lg"><ChevronRight /></button>
         </div>
 
         {/* Calendar Grid */}
-        <div className="border border-gray-800 rounded-lg overflow-hidden">
-          {/* Weekday Headers */}
+        <div className="border border-gray-800 rounded-xl overflow-hidden">
           <div className="grid grid-cols-7 bg-gray-950 border-b border-gray-800">
-            {weekDays.map((day) => (
-              <div
-                key={day}
-                className="p-4 text-center font-semibold text-gray-400 text-sm"
-              >
-                {day}
-              </div>
-            ))}
+            {weekDays.map(day => <div key={day} className="p-4 text-center font-semibold text-gray-500 text-sm">{day}</div>)}
           </div>
 
-          {/* Calendar Days */}
           {weeks.map((week, weekIdx) => (
             <div key={weekIdx} className="grid grid-cols-7 border-b border-gray-800 last:border-b-0">
               {week.map((day, dayIdx) => {
                 const events = day ? getEventsForDay(day) : [];
-                const isHovered = hoveredDay === day;
-
                 return (
-                  <div
+                  <motion.div
                     key={`${weekIdx}-${dayIdx}`}
-                    className={`min-h-32 p-4 border-r border-gray-800 last:border-r-0 ${
-                      day ? "bg-gray-900 hover:bg-gray-850 cursor-pointer transition-colors" : "bg-black"
+                    whileHover={day ? { backgroundColor: "#111" } : {}}
+                    onClick={() => day && events.length > 0 && setSelectedDay(day)}
+                    className={`min-h-32 p-4 border-r border-gray-800 last:border-r-0 relative transition-colors ${
+                      day ? "bg-gray-900/50 cursor-pointer" : "bg-black"
                     }`}
-                    onMouseEnter={() => day && setHoveredDay(day)}
-                    onMouseLeave={() => setHoveredDay(null)}
                   >
                     {day && (
-                      <div className="relative h-full flex flex-col">
-                        {/* Day Number */}
-                        <div className="text-lg font-bold mb-2">{day}</div>
-
-                        {/* Events Container */}
-                        <div className="flex flex-col gap-2 flex-grow">
-                          {events.length > 0 ? (
-                            events.map((event) => (
-                              <motion.div
-                                key={event.id}
-                                className="relative"
-                                whileHover={{ scale: 1.05 }}
-                              >
-                                {/* Green Event Box */}
-                                <div className="w-full h-6 bg-green-500 rounded flex items-center justify-center cursor-pointer group relative">
-                                  <span className="text-xs font-bold text-black">{event.time.slice(0, 5)}</span>
-
-                                  {/* Hover Preview */}
-                                  {isHovered && (
-                                    <motion.div
-                                      initial={{ opacity: 0, y: -10 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-gray-800 border border-gray-700 rounded-lg p-3 w-56 z-50 shadow-lg whitespace-normal"
-                                    >
-                                      <div className="text-sm font-semibold text-white mb-1">
-                                        {event.title}
-                                      </div>
-                                      <div className="text-xs text-gray-300 mb-1">
-                                        {event.speaker}
-                                      </div>
-                                      <div className="text-xs text-gray-400 mb-2">
-                                        {event.room} • {event.time}
-                                      </div>
-                                      <div className="text-xs text-gray-400">
-                                        {event.track}
-                                      </div>
-                                    </motion.div>
-                                  )}
-                                </div>
-                              </motion.div>
-                            ))
-                          ) : (
-                            <div className="text-xs text-gray-600">No events</div>
-                          )}
-                        </div>
-
-                        {/* Event Count Badge */}
+                      <>
+                        <span className="text-lg font-bold text-gray-400">{day}</span>
                         {events.length > 0 && (
-                          <div className="mt-2 text-xs text-gray-400">
-                            {events.length} event{events.length > 1 ? "s" : ""}
+                          <div className="mt-2">
+                            <div className="bg-green-500 text-black text-[10px] font-black px-2 py-1 rounded uppercase tracking-tighter">
+                              {events.length} {events.length === 1 ? 'Event' : 'Events'}
+                            </div>
+                            <div className="mt-1 text-[10px] text-gray-500 truncate">
+                              {events[0].title}
+                            </div>
                           </div>
                         )}
-                      </div>
+                      </>
                     )}
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
           ))}
         </div>
       </div>
+
+      {/* MODAL OVERLAY */}
+      <AnimatePresence>
+        {selectedDay && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedDay(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+
+            {/* Modal Content */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden"
+            >
+              <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
+                <div>
+                  <h3 className="text-2xl font-bold">Schedule for {monthName.split(' ')[0]} {selectedDay}</h3>
+                  <p className="text-gray-400 text-sm">{selectedEvents.length} sessions scheduled</p>
+                </div>
+                <button 
+                  onClick={() => setSelectedDay(null)}
+                  className="p-2 hover:bg-gray-800 rounded-full transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="max-h-[60vh] overflow-y-auto p-6 space-y-4">
+                {selectedEvents.map((event) => (
+                  <div 
+                    key={event.id} 
+                    className="group bg-gray-800/50 border border-gray-700 p-5 rounded-xl hover:border-green-500/50 transition-colors"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <span className="bg-green-500 text-black px-2 py-1 rounded text-xs font-bold uppercase">
+                        {event.track}
+                      </span>
+                      <div className="flex items-center text-gray-400 text-sm">
+                        <Clock size={14} className="mr-1" /> {event.time} ({event.duration}m)
+                      </div>
+                    </div>
+                    
+                    <h4 className="text-xl font-bold mb-2 group-hover:text-green-400 transition-colors">
+                      {event.title}
+                    </h4>
+                    
+                    <div className="flex flex-wrap gap-4 text-sm text-gray-300">
+                      <div className="flex items-center">
+                        <User size={14} className="mr-1 text-gray-500" />
+                        {event.speaker} <span className="text-gray-500 ml-1">({event.role})</span>
+                      </div>
+                      <div className="flex items-center">
+                        <MapPin size={14} className="mr-1 text-gray-500" />
+                        {event.room}
+                      </div>
+                    </div>
+                    
+                    <p className="mt-4 text-gray-400 text-sm leading-relaxed border-t border-gray-700/50 pt-4">
+                      {event.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
