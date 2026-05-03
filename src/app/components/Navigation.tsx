@@ -19,10 +19,11 @@ export default function Navigation() {
   }, [location]);
 
   const navLinks = [
-    { label: "Home", to: "/" },
-    { label: "Schedule", to: "/schedule" },
-    { label: "Tickets", to: "/tickets" },
-  ];
+      { label: "Home", to: "/" },
+      { label: "Schedule", to: "/schedule" },
+      { label: "Archives", to: "/previous" }, // Added new link
+      { label: "Tickets", to: "/tickets" },
+    ];
 
   return (
     <>
@@ -38,9 +39,10 @@ export default function Navigation() {
         }}
         className="fixed top-0 left-0 right-0 z-50 px-6 lg:px-12"
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 md:h-20 relative">
+          
+          {/* Logo (Left) */}
+          <Link to="/" className="flex items-center gap-2 group relative z-10">
             <motion.div
               whileHover={{ rotate: 20 }}
               transition={{ type: "spring", stiffness: 300 }}
@@ -61,8 +63,15 @@ export default function Navigation() {
             </span>
           </Link>
 
-          {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-8">
+          {/* Desktop links (Perfectly Centered) */}
+          <div 
+            className="hidden md:flex items-center gap-8"
+            style={{
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+            }}
+          >
             {navLinks.map((link) => {
               const active = location.pathname === link.to;
               return (
@@ -100,43 +109,20 @@ export default function Navigation() {
             })}
           </div>
 
-          {/* CTA */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link to="/tickets">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.97 }}
-                style={{
-                  background: "linear-gradient(135deg, #00ff88, #00d4ff)",
-                  color: "#050508",
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
-                  letterSpacing: "0.05em",
-                  padding: "0.5rem 1.25rem",
-                  borderRadius: "8px",
-                  border: "none",
-                  cursor: "pointer",
-                  boxShadow: "0 0 20px rgba(0,255,136,0.3)",
-                }}
-              >
-                GET TICKETS
-              </motion.button>
-            </Link>
+          {/* Right spacer/Hamburger (Right) */}
+          <div className="flex items-center justify-end z-10">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              style={{ color: "#ffffff", background: "transparent", border: "none", cursor: "pointer" }}
+              className="p-2"
+            >
+              {menuOpen ? <X size={22} /> : <Menu size={22} className="md:hidden" />}
+            </button>
           </div>
-
-          {/* Mobile hamburger */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            style={{ color: "#ffffff", background: "transparent", border: "none", cursor: "pointer" }}
-            className="md:hidden p-2"
-          >
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
         </div>
       </motion.nav>
 
-      {/* Mobile menu */}
+      {/* Mobile menu (Remains same as provided) */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -173,25 +159,6 @@ export default function Navigation() {
                 {link.label}
               </Link>
             ))}
-            <Link to="/tickets">
-              <button
-                style={{
-                  background: "linear-gradient(135deg, #00ff88, #00d4ff)",
-                  color: "#050508",
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  fontWeight: 700,
-                  fontSize: "0.9rem",
-                  padding: "0.75rem 1.5rem",
-                  borderRadius: "8px",
-                  border: "none",
-                  cursor: "pointer",
-                  width: "100%",
-                  marginTop: "0.5rem",
-                }}
-              >
-                GET TICKETS
-              </button>
-            </Link>
           </motion.div>
         )}
       </AnimatePresence>
