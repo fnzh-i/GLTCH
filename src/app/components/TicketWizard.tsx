@@ -14,7 +14,7 @@ const P = {
   secondary: "#a855f7",           // iris purple
   warm:      "#fbbf24",           // amber gold
   hot:       "#e879f9",           // fuchsia
-  bg:        "#050508",
+  bg:        "#0d1117",
   surface:   "rgba(255,255,255,0.028)",
   border:    "rgba(255,255,255,0.08)",
 };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, ChevronRight, X, Clock, MapPin, User } from "lucide-react";
 import talksData from "../../data/talks.json";
@@ -19,7 +19,8 @@ type Talk = {
 const talks: Talk[] = talksData as Talk[];
 
 function Schedule() {
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 3)); // April 2026
+  const [talks, setTalks] = useState<Talk[]>(talksData as Talk[]);
+  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 3));
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   // Get events for a specific day
@@ -34,6 +35,17 @@ function Schedule() {
   const getFirstDayOfMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
+
+  useEffect(() => {
+    const saved = localStorage.getItem('gltch_schedule');
+    if (saved) {
+      try {
+        setTalks(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse schedule from local storage", e);
+      }
+    }
+  }, []);
 
   const daysInMonth = getDaysInMonth(currentMonth);
   const firstDay = getFirstDayOfMonth(currentMonth);
@@ -56,7 +68,7 @@ function Schedule() {
   const selectedEvents = selectedDay ? getEventsForDay(selectedDay) : [];
 
   return (
-    <div className="w-full bg-black text-white min-h-screen p-8 relative">
+    <div className="w-full bg-[#0d1117] text-white min-h-screen p-8 relative">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h2 className="text-4xl font-bold mb-2">Schedule</h2>
