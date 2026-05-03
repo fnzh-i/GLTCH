@@ -384,28 +384,24 @@ function QRCode() {
     </div>
   );
 }
-
-function OrderCart({ passId, workshopIds, details, total, orderId, payload }: {
+function OrderCart({ passId, workshopIds, details, total, orderId }: {
   passId: string; workshopIds: string[]; details: Details;
   total: number; orderId: string; payload: object;
 }) {
   const pass = PASSES.find((p) => p.id === passId)!;
   const workshopItems = passId === "visionary" ? WORKSHOPS : workshopIds.map((id) => WORKSHOPS.find((w) => w.id === id)).filter(Boolean);
-  const workshopsTotal = passId === "visionary" ? 0 : workshopIds.reduce((s, id) => s + (WORKSHOPS.find((w) => w.id === id)?.price ?? 0), 0);
-  const [copied, setCopied] = useState(false);
   const hasFired = useRef(false);
 
   useEffect(() => {
     if (hasFired.current) return;
     hasFired.current = true;
-    const fire = (o: confetti.Options) => confetti({ particleCount: 60, spread: 70, origin: { y: 0.55 }, colors: ["#ff5e1a","#a855f7","#fbbf24","#e879f9","#ffffff"], ...o });
+    const fire = (o: confetti.Options) => confetti({ 
+      particleCount: 60, spread: 70, origin: { y: 0.55 }, 
+      colors: [P.primary, P.secondary, P.warm, P.hot, "#ffffff"], ...o 
+    });
     setTimeout(() => { fire({ angle: 60, origin: { x: 0, y: 0.6 } }); fire({ angle: 120, origin: { x: 1, y: 0.6 } }); }, 200);
     setTimeout(() => { fire({ angle: 90, particleCount: 80, spread: 100, origin: { x: 0.5, y: 0.5 } }); }, 600);
   }, []);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
-  };
 
   return (
     <motion.div
@@ -433,7 +429,6 @@ function OrderCart({ passId, workshopIds, details, total, orderId, payload }: {
           initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
           style={{ textAlign: "center", marginBottom: "3.5rem" }}
         >
-          {/* Animated check circle */}
           <motion.div
             initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 200, damping: 18, delay: 0.1 }}
@@ -450,47 +445,36 @@ function OrderCart({ passId, workshopIds, details, total, orderId, payload }: {
               You're in, {details.name.split(" ")[0]}!
             </h1>
             <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.7, maxWidth: 480, margin: "0 auto" }}>
-              Confirmation sent to <span style={{ color: "rgba(255,255,255,0.75)" }}>{details.email}</span>. Your ticket and full details are below.
+              Check <span style={{ color: "rgba(255,255,255,0.75)" }}>{details.email}</span> for your entry pass. We'll see you at the Nexus.
             </p>
           </motion.div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
-          {/* ── LEFT: TICKET STUB + RECEIPT ── */}
+          {/* ── LEFT: THE TICKET & RECEIPT (STAYS THE SAME) ── */}
           <div className="lg:col-span-3 flex flex-col gap-5">
-
             {/* Ticket stub */}
             <motion.div
               initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5 }}
               style={{ borderRadius: "20px", overflow: "hidden", position: "relative" }}
             >
-              {/* Shine sweep */}
               <div style={{ position: "absolute", top: 0, bottom: 0, width: "40%", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)", animation: "ticket-shine 3s ease-in-out 1s 1", pointerEvents: "none", zIndex: 5 }} />
-
-              {/* Top portion */}
               <div style={{ background: `linear-gradient(135deg, ${pass.color}22, rgba(168,85,247,0.1))`, border: `1px solid ${pass.color}44`, borderBottom: "none", padding: "2rem 2rem 1.75rem", position: "relative" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap" as const, gap: "1rem" }}>
                   <div>
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", marginBottom: "0.5rem" }}>GLTCH '26 · CONFERENCE TICKET</div>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", marginBottom: "0.5rem" }}>GLTCH '26 · ADMISSION PASS</div>
                     <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "clamp(1.4rem,3vw,2rem)", color: "#ffffff", lineHeight: 1.1, marginBottom: "0.3rem" }}>
-                      {pass.name} PASS
+                      {pass.name}
                     </div>
-                    <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.85rem", color: pass.color }}>{pass.tagline}</div>
+                    <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.85rem", color: pass.color }}>{pass.tagline.toUpperCase()}</div>
                   </div>
                   <div style={{ textAlign: "right" as const }}>
                     <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 600, color: pass.color, lineHeight: 1 }}>${pass.price}</div>
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em" }}>BASE PRICE</div>
                   </div>
                 </div>
-
-                {/* Info row */}
                 <div style={{ display: "flex", gap: "2rem", marginTop: "1.5rem", flexWrap: "wrap" as const }}>
-                  {[
-                    { icon: CalendarDays, label: "Jun 15–17, 2026" },
-                    { icon: MapPin,       label: "Moscone West, SF" },
-                    { icon: Ticket,       label: "1 Attendee" },
-                  ].map(({ icon: Icon, label }) => (
+                  {[{ icon: CalendarDays, label: "Jun 15–17, 2026" }, { icon: MapPin, label: "Moscone West, SF" }].map(({ icon: Icon, label }) => (
                     <div key={label} style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                       <Icon size={13} color="rgba(255,255,255,0.35)" />
                       <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>{label}</span>
@@ -498,25 +482,18 @@ function OrderCart({ passId, workshopIds, details, total, orderId, payload }: {
                   ))}
                 </div>
               </div>
-
-              {/* Tear line */}
-              <div style={{ position: "relative", height: 1, background: `${pass.color}33`, overflow: "visible", display: "flex", alignItems: "center" }}>
+              <div style={{ position: "relative", height: 1, background: `${pass.color}33`, display: "flex", alignItems: "center" }}>
                 <div style={{ position: "absolute", left: -12, width: 24, height: 24, borderRadius: "50%", background: P.bg, border: `1px solid ${pass.color}33` }} />
                 <div style={{ flex: 1, borderTop: `1px dashed rgba(255,255,255,0.1)`, margin: "0 1rem" }} />
                 <div style={{ position: "absolute", right: -12, width: 24, height: 24, borderRadius: "50%", background: P.bg, border: `1px solid ${pass.color}33` }} />
               </div>
-
-              {/* Bottom portion */}
               <div style={{ background: `linear-gradient(135deg, rgba(5,5,8,0.95), ${pass.color}08)`, border: `1px solid ${pass.color}33`, borderTop: "none", padding: "1.5rem 2rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" as const, gap: "1rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.15em", color: "rgba(255,255,255,0.3)", marginBottom: "0.3rem" }}>ORDER ID</div>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.15em", color: "rgba(255,255,255,0.3)", marginBottom: "0.3rem" }}>CONFIRMATION NO.</div>
                     <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "1.1rem", color: P.primary, letterSpacing: "0.08em" }}>{orderId}</div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <Sparkles size={14} color={pass.color} />
-                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.65rem", color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}>EARLY BIRD · USD</span>
-                  </div>
+                  <Sparkles size={16} color={pass.color} opacity={0.5} />
                 </div>
               </div>
             </motion.div>
@@ -524,143 +501,63 @@ function OrderCart({ passId, workshopIds, details, total, orderId, payload }: {
             {/* Itemized receipt */}
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.5 }}
-              style={{ background: P.surface, border: `1px solid ${P.border}`, borderRadius: "18px", overflow: "hidden" }}
+              style={{ background: P.surface, border: `1px solid ${P.border}`, borderRadius: "18px", padding: "1.5rem" }}
             >
-              <div style={{ padding: "1.25rem 1.5rem", borderBottom: `1px solid ${P.border}`, display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                <Package size={15} color={P.primary} />
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.65rem", letterSpacing: "0.15em", color: "rgba(255,255,255,0.5)" }}>ITEMIZED RECEIPT</span>
-              </div>
-
-              <div style={{ padding: "1.25rem 1.5rem" }}>
-                {/* Pass line */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "0.85rem", borderBottom: `1px solid ${P.border}`, marginBottom: "0.85rem" }}>
-                  <div>
-                    <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: "0.9rem", color: "#ffffff" }}>{pass.name} Conference Pass</div>
-                    <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.75rem", color: "rgba(255,255,255,0.35)", marginTop: "0.15rem" }}>3-day all-access · Jun 15–17</div>
-                  </div>
-                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.95rem", color: "#ffffff" }}>${pass.price}</span>
-                </div>
-
-                {/* Workshop lines */}
-                {workshopItems.length > 0 && workshopItems.map((w) => w && (
-                  <div key={w.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.65rem" }}>
-                    <div>
-                      <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.84rem", color: "rgba(255,255,255,0.75)" }}>{w.name}</div>
-                      <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.72rem", color: "rgba(255,255,255,0.3)", marginTop: "0.1rem" }}>{w.duration} workshop · {w.day} · {w.instructor}</div>
+               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", paddingBottom: "1rem", borderBottom: `1px solid ${P.border}` }}>
+                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, color: "#ffffff" }}>TOTAL CHARGED</span>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: 600, fontSize: "1.5rem", color: P.primary }}>${total}</span>
+               </div>
+               <div style={{ opacity: 0.5 }}>
+                  {workshopItems.length > 0 && workshopItems.map((w) => w && (
+                    <div key={w.id} style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                      <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.8rem", color: "#fff" }}>{w.name}</span>
+                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.8rem", color: "#fff" }}>{passId === "visionary" ? "FREE" : `+$${w.price}`}</span>
                     </div>
-                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.88rem", color: passId === "visionary" ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.7)", textDecoration: passId === "visionary" ? "line-through" : "none", flexShrink: 0 }}>
-                      {passId === "visionary" ? `$${w.price}` : `+$${w.price}`}
-                    </span>
-                  </div>
-                ))}
-
-                {/* Discount row */}
-                {passId === "visionary" && workshopItems.length > 0 && (
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.65rem", padding: "0.6rem 0.75rem", background: "rgba(255,94,26,0.06)", borderRadius: "8px", border: "1px solid rgba(255,94,26,0.15)" }}>
-                    <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.82rem", color: P.primary }}>✦ Visionary workshop discount</span>
-                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.88rem", color: P.primary }}>
-                      −${WORKSHOPS.reduce((s, w) => s + w.price, 0)}
-                    </span>
-                  </div>
-                )}
-
-                {/* Total row */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "0.85rem", borderTop: `1px solid ${P.border}`, marginTop: "0.5rem" }}>
-                  <div>
-                    <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1rem", color: "#ffffff" }}>Total Charged</div>
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", marginTop: "0.15rem", letterSpacing: "0.08em" }}>USD · EARLY BIRD</div>
-                  </div>
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontWeight: 600, fontSize: "1.8rem", color: P.primary }}>${total}</div>
-                </div>
-              </div>
+                  ))}
+               </div>
             </motion.div>
           </div>
 
-          {/* ── RIGHT: QR + ATTENDEE + ACTIONS + PAYLOAD ── */}
+          {/* ── RIGHT: NEW CLEAN ACTION SIDEBAR ── */}
           <div className="lg:col-span-2 flex flex-col gap-5">
-
-            {/* Attendee card */}
+            
+            {/* Attendee Info & QR (Merged & Simplified) */}
             <motion.div
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, duration: 0.5 }}
-              style={{ background: P.surface, border: `1px solid ${P.border}`, borderRadius: "18px", padding: "1.5rem" }}
+              style={{ background: P.surface, border: `1px solid ${P.border}`, borderRadius: "18px", padding: "2rem", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}
             >
-              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", letterSpacing: "0.18em", color: "rgba(255,255,255,0.35)", marginBottom: "1rem" }}>ATTENDEE</div>
-              <div style={{ display: "flex", flexDirection: "column" as const, gap: "0.65rem" }}>
-                {[
-                  { Icon: User,     val: details.name },
-                  { Icon: Mail,     val: details.email },
-                  ...(details.company ? [{ Icon: Building2, val: details.company }] : []),
-                ].map(({ Icon, val }) => (
-                  <div key={val} style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
-                    <Icon size={14} color="rgba(255,255,255,0.3)" />
-                    <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.88rem", color: "rgba(255,255,255,0.75)" }}>{val}</span>
-                  </div>
-                ))}
+              <QRCode />
+              <div style={{ marginTop: "1.5rem" }}>
+                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1.2rem", color: "#fff", marginBottom: "0.2rem" }}>{details.name}</div>
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", letterSpacing: "0.05em" }}>{details.email}</div>
               </div>
-
-              {/* QR code area */}
-              <div style={{ marginTop: "1.5rem", paddingTop: "1.25rem", borderTop: `1px solid ${P.border}`, display: "flex", flexDirection: "column" as const, alignItems: "center", gap: "0.75rem" }}>
-                <QRCode />
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", color: "rgba(255,255,255,0.25)", letterSpacing: "0.12em", textAlign: "center" as const }}>
-                  SCAN AT VENUE ENTRANCE
-                </div>
+              <div style={{ marginTop: "1.5rem", padding: "0.5rem 1rem", background: "rgba(255,255,255,0.03)", borderRadius: "8px", border: `1px solid ${P.border}` }}>
+                 <p style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.6rem", color: P.primary, letterSpacing: "0.15em" }}>PRESENT AT CHECK-IN</p>
               </div>
             </motion.div>
 
-            {/* Action buttons */}
+            {/* Single Modern Action */}
             <motion.div
               initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5, duration: 0.5 }}
-              style={{ display: "flex", flexDirection: "column" as const, gap: "0.65rem" }}
+              style={{ display: "flex", flexDirection: "column" as const, gap: "1rem" }}
             >
               <Link to="/">
                 <motion.button
-                  whileHover={{ scale: 1.03, boxShadow: "0 0 30px rgba(255,94,26,0.4)" }}
-                  whileTap={{ scale: 0.97 }}
-                  style={{ width: "100%", background: `linear-gradient(135deg, ${P.primary}, ${P.secondary})`, color: "#ffffff", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "0.88rem", letterSpacing: "0.08em", padding: "0.85rem 1.5rem", borderRadius: "12px", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
+                  whileHover={{ scale: 1.02, backgroundColor: "#ffffff", color: "#000" }}
+                  whileTap={{ scale: 0.98 }}
+                  style={{ width: "100%", background: "transparent", color: "#ffffff", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1rem", padding: "1.1rem", borderRadius: "14px", border: "2px solid #ffffff", cursor: "pointer", transition: "all 0.3s ease" }}
                 >
-                  <Home size={15} /> BACK TO HOME
+                  GO TO DASHBOARD
                 </motion.button>
               </Link>
-              <Link to="/schedule">
-                <motion.button
-                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  style={{ width: "100%", background: "transparent", color: "rgba(255,255,255,0.7)", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: "0.88rem", letterSpacing: "0.06em", padding: "0.85rem 1.5rem", borderRadius: "12px", border: `1px solid ${P.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
-                >
-                  <CalendarDays size={15} /> BROWSE SCHEDULE
-                </motion.button>
-              </Link>
-              <motion.button
-                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                style={{ width: "100%", background: "transparent", color: "rgba(255,255,255,0.5)", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: "0.88rem", letterSpacing: "0.06em", padding: "0.85rem 1.5rem", borderRadius: "12px", border: `1px solid rgba(255,255,255,0.08)`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
-              >
-                <Download size={15} /> DOWNLOAD TICKET PDF
-              </motion.button>
-            </motion.div>
 
-            {/* JSON payload preview */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6, duration: 0.5 }}
-              style={{ background: "rgba(0,0,0,0.4)", border: `1px solid rgba(255,255,255,0.07)`, borderRadius: "14px", overflow: "hidden" }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.8rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <Terminal size={13} color={P.primary} />
-                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}>ORDER PAYLOAD</span>
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                  onClick={handleCopy}
-                  style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: copied ? "rgba(255,94,26,0.15)" : "rgba(255,255,255,0.06)", border: `1px solid ${copied ? "rgba(255,94,26,0.3)" : "rgba(255,255,255,0.08)"}`, borderRadius: "6px", padding: "0.25rem 0.6rem", cursor: "pointer", transition: "all 0.2s ease" }}
-                >
-                  {copied ? <Check size={11} color={P.primary} /> : <Share2 size={11} color="rgba(255,255,255,0.4)" />}
-                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.58rem", color: copied ? P.primary : "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}>{copied ? "COPIED" : "COPY"}</span>
-                </motion.button>
-              </div>
-              <div style={{ padding: "0.85rem 1rem", maxHeight: 220, overflowY: "auto" }}>
-                <pre style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", color: "rgba(255,255,255,0.45)", margin: 0, whiteSpace: "pre-wrap", lineHeight: 1.7 }}>
-                  {JSON.stringify(payload, null, 2)}
-                </pre>
-              </div>
+              <button 
+                onClick={() => window.print()}
+                style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", fontFamily: "'DM Mono', monospace", fontSize: "0.65rem", letterSpacing: "0.2em", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
+              >
+                <Download size={12} />
+                PRINT_LOCAL_BACKUP
+              </button>
             </motion.div>
 
           </div>
