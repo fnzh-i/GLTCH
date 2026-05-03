@@ -55,9 +55,9 @@ const STATS = [
 ];
 
 const TICKER_ITEMS = [
-  "JUN 15–17, 2026", "SAN FRANCISCO, CA", "25+ TALKS", "20+ SPEAKERS",
+  "JUN 15 - 17, 2026", "SAN FRANCISCO, CA", "25+ TALKS", "20+ SPEAKERS",
   "DESIGN", "CODE", "AI", "CULTURE", "500+ ATTENDEES", "GLTCH '26",
-  "JUN 15–17, 2026", "SAN FRANCISCO, CA", "25+ TALKS", "20+ SPEAKERS",
+  "JUN 15 - 17, 2026", "SAN FRANCISCO, CA", "25+ TALKS", "20+ SPEAKERS",
   "DESIGN", "CODE", "AI", "CULTURE", "500+ ATTENDEES", "GLTCH '26",
 ];
 
@@ -212,63 +212,6 @@ export default function Landing() {
           style={{ opacity: heroOpacity, position: "relative", zIndex: 10, width: "100%", paddingTop: "5rem" }}
           className="px-6 lg:px-16 max-w-7xl mx-auto"
         >
-          {/* Eyebrow */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex items-center gap-3 mb-6"
-          >
-            <div style={{ width: 40, height: 1, background: "#00ff88" }} />
-            <span style={{
-              fontFamily: "'DM Mono', monospace",
-              fontSize: "0.75rem",
-              letterSpacing: "0.2em",
-              color: "#00ff88",
-            }}>
-              THE TECH + ART CONFERENCE — JUN 15–17, 2026
-            </span>
-          </motion.div>
-
-          {/* Main title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: "clamp(5rem, 16vw, 17rem)",
-              fontWeight: 700,
-              letterSpacing: "-0.04em",
-              lineHeight: 0.85,
-              color: "#ffffff",
-              animation: "glitch 9s ease-in-out infinite 2s",
-              margin: 0,
-            }}
-          >
-            GLTCH
-          </motion.h1>
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="flex items-center gap-4 mb-6"
-          >
-            <span style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: "clamp(3rem, 8vw, 9rem)",
-              fontWeight: 700,
-              letterSpacing: "-0.04em",
-              background: "linear-gradient(135deg, #00ff88, #00d4ff)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              lineHeight: 0.85,
-            }}>
-              '26
-            </span>
-            <div style={{ flex: 1, height: 4, background: "linear-gradient(90deg, #00ff88, transparent)", maxWidth: 300 }} />
-          </motion.div>
-
           {/* Cycling tagline */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -296,7 +239,44 @@ export default function Landing() {
               </motion.p>
             </AnimatePresence>
           </motion.div>
+          {/* Eyebrow */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="flex flex-col gap-2 mb-12"
+          >
+            {/* Row 1: The Branding */}
+            <div className="flex items-center gap-5">
+              <div style={{ width: 60, height: 4, background: "#00ff88", boxShadow: "0 0 15px rgba(0,255,136,0.5)" }} />
+              <span style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "clamp(1.2rem, 3vw, 2.2rem)", // Large and bold
+                fontWeight: 800,
+                letterSpacing: "0.25em",
+                color: "#ffffff",
+                textTransform: "uppercase",
+              }}>
+                TECH + ART CONFERENCE
+              </span>
+              <div style={{ width: 60, height: 4, background: "#00ff88", boxShadow: "0 0 15px rgba(0,255,136,0.5)" }} />
+            </div>
 
+            {/* Row 2: The Date (Indented slightly to follow the line) */}
+            <div style={{ paddingLeft: "80px" }}> 
+              <span style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "clamp(1rem, 2.5vw, 1.8rem)",
+                fontWeight: 400,
+                letterSpacing: "0.5em", // Extra wide for the date
+                color: "#00ff88",
+                textTransform: "uppercase",
+                textShadow: "0 0 20px rgba(0,255,136,0.4)"
+              }}>
+                JUN 15-17, 2026
+              </span>
+            </div>
+          </motion.div>
           {/* Countdown */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -317,30 +297,6 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 1.3 }}
             className="flex flex-wrap gap-4"
           >
-            <Link to="/schedule">
-              <motion.button
-                whileHover={{ scale: 1.03, boxShadow: "0 0 40px rgba(0,255,136,0.4)" }}
-                whileTap={{ scale: 0.97 }}
-                style={{
-                  background: "linear-gradient(135deg, #00ff88, #00d4ff)",
-                  color: "#050508",
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  fontWeight: 700,
-                  fontSize: "0.9rem",
-                  letterSpacing: "0.08em",
-                  padding: "0.9rem 2rem",
-                  borderRadius: "10px",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  boxShadow: "0 0 25px rgba(0,255,136,0.25)",
-                }}
-              >
-                EXPLORE SCHEDULE <ArrowRight size={16} />
-              </motion.button>
-            </Link>
             <Link to="/tickets">
               <motion.button
                 whileHover={{ scale: 1.03, borderColor: "#00ff88" }}
@@ -363,7 +319,7 @@ export default function Landing() {
                   transition: "border-color 0.2s ease",
                 }}
               >
-                GET TICKETS <Zap size={16} />
+                GET TICKETS NOW! <Zap size={16} />
               </motion.button>
             </Link>
           </motion.div>
@@ -651,7 +607,7 @@ export default function Landing() {
               <div className="flex flex-col gap-3">
                 {[
                   { icon: MapPin, text: "747 Howard St, San Francisco, CA 94103" },
-                  { icon: Calendar, text: "June 15 – 17, 2026" },
+                  { icon: Calendar, text: "June 15 - 17, 2026" },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-3">
                     <Icon size={16} color="#00ff88" />
